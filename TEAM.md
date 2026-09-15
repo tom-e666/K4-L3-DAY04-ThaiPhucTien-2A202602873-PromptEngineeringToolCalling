@@ -13,9 +13,9 @@
 ## Thành viên
 
 | Họ và tên | MSSV | GitHub | Vai trò và công việc | File/commit/PR |
-|---|---|---|---|---|
-| | | | | |
-
+|Thái Phúc Tiến |2A202602873 | tom-e666 | Tool, managing |
+|Nguyễn Đức Long | 2A202602917 | duclongt23 | prompt, tool, runs|
+|Trần Đình Duy |2A202602631 | Duytd26 | UI/UX, evaluation|
 ## Nhận xét chung
 
 - Kết quả và bằng chứng:
