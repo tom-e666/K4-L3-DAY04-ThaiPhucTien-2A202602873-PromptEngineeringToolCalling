@@ -42,7 +42,7 @@ tools:
       type: object
       properties:
         asset_id: {type: string, description: "Mã tài sản"}
-        check: {type: string, enum: [all, network, vpn, security, hardware, software], default: "all", description: "Nhóm kiểm tra"}
+        check: {type: string, enum: [all, network, vpn, security, hardware, software], default: "all", description: "Hạng mục kiểm tra. Chọn hạng mục cụ thể (ví dụ 'vpn' hoặc 'network') nếu sự cố thuộc dịch vụ đó, chỉ chọn 'all' khi kiểm tra tổng thể."}
       required: [asset_id]
 
   - name: lookup_user
