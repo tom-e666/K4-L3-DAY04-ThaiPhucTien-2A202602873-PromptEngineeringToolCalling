@@ -2,7 +2,7 @@
  * K4 Level 3B — Prompt Engineering & Tool Calling Labs
  * AI Agent Evaluation & Demo Dashboard Logic
  */
-const MOCK_DATA = window.MOCK_DATA || {};
+const DEMO_DATA = window.MOCK_DATA || {};
 class AgentDashboardApp {
   constructor() {
     this.currentScenarioId = "basic-device";
@@ -11,6 +11,13 @@ class AgentDashboardApp {
     this.isAutoplayRunning = false;
     this.autoplayTimer = null;
     this.autoplayIndex = 0;
+    this.runtimeRuns = {};
+    this.runtimeDataReady = false;
+    this.runtimeRunPaths = {
+      v1: "starter_v0/runs/v1_B_base_openrouter_20260915T183244852658.json",
+      v2: "starter_v0/runs/v2_B_base_openrouter_20260915T184058069311.json",
+      v3: "starter_v0/runs/v3_B_base_openrouter_20260915T185411871703.json"
+    };
     this.autoplayScenarios = [
       "basic-device",
       "basic-vpn",
@@ -29,6 +36,39 @@ class AgentDashboardApp {
     this.renderVersionCard(this.currentVersion);
     this.renderEvaluationCard();
     this.loadScenario(this.currentScenarioId);
+    this.loadRuntimeEvidence();
+  }
+
+  async loadRuntimeEvidence() {
+    const entries = Object.entries(this.runtimeRunPaths);
+    const loaded = await Promise.all(entries.map(async ([version, path]) => {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return [version, await response.json()];
+      } catch (error) {
+        console.warn(`Không tải được run ${version}:`, error);
+        return [version, null];
+      }
+    }));
+
+    loaded.forEach(([version, run]) => {
+      if (run) this.runtimeRuns[version] = run;
+    });
+    this.runtimeDataReady = Object.keys(this.runtimeRuns).length > 0;
+    this.renderVersionCard(this.currentVersion);
+    this.renderEvaluationCard();
+    this.updateRuntimeStatus();
+  }
+
+  getRuntimeRun(version = this.currentVersion) {
+    return this.runtimeRuns[version] || null;
+  }
+
+  updateRuntimeStatus() {
+    if (!this.metaStatusVal) return;
+    this.metaStatusVal.textContent = this.runtimeDataReady ? "Live evidence loaded" : "Demo evidence";
+    this.metaStatusVal.style.color = this.runtimeDataReady ? "var(--success-text)" : "var(--warning-text)";
   }
 
   initElements() {
@@ -139,7 +179,7 @@ class AgentDashboardApp {
 
     // Group by category
     const categories = {};
-    MOCK_DATA.scenarios.forEach(sc => {
+    DEMO_DATA.scenarios.forEach(sc => {
       if (!categories[sc.category]) categories[sc.category] = [];
       categories[sc.category].push(sc);
     });
@@ -188,18 +228,28 @@ class AgentDashboardApp {
     this.activeVersionBadge.textContent = verKey;
     this.metaVersionVal.textContent = verKey;
     this.renderVersionCard(verKey);
+    this.renderEvaluationCard();
     this.showToast(`Đã chọn Artifact Version: ${verKey}`);
   }
 
   renderVersionCard(verKey) {
-    const v = MOCK_DATA.versions[verKey];
+    const v = DEMO_DATA.versions[verKey];
     if (!v || !this.versionComparisonBox) return;
+    const run = this.getRuntimeRun(verKey);
+    const metrics = run ? run.summary : v.metrics;
+    const passed = metrics.passed_cases ?? metrics.passed;
+    const total = metrics.total_cases ?? metrics.totalCases;
+    const measured = metrics.measured_cases ?? metrics.measured;
+    const providerErrors = metrics.provider_error_cases ?? metrics.providerErrors;
+    const passRate = total ? `${Math.round((passed / total) * 1000) / 10}%` : v.metrics.passRate;
+    const evidenceLabel = run ? `Run thật · ${run.run_id}` : "Mock fallback";
 
     this.versionComparisonBox.innerHTML = `
       <div class="meta-header-row" style="margin-bottom: 6px;">
         <span class="meta-title">${v.label}</span>
         <span class="scenario-tag" style="background: var(--primary-50); color: var(--primary-600); font-weight: bold;">${v.badge}</span>
       </div>
+      <div style="font-size: 10px; color: var(--success-text); margin-bottom: 6px; font-family: var(--font-mono);">${evidenceLabel}</div>
       <div style="font-size: 11.5px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.4;">
         <strong style="color: var(--text-primary);">Giả thuyết:</strong> ${v.hypothesis}
       </div>
@@ -209,43 +259,53 @@ class AgentDashboardApp {
       <div style="padding: 8px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 4px;">
         <div style="display: flex; justify-content: space-between; font-size: 11px;">
           <span>Tỉ lệ đỗ Core:</span>
-          <strong style="font-family: var(--font-mono); color: var(--primary-600);">${v.metrics.passRate} (${v.metrics.passed}/${v.metrics.totalCases})</strong>
+          <strong style="font-family: var(--font-mono); color: var(--primary-600);">${passRate} (${passed}/${total})</strong>
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 11px;">
-          <span>Trạng thái:</span>
-          <span style="font-weight: 600; color: ${v.metrics.statusColor === 'emerald' ? 'var(--success-text)' : v.metrics.statusColor === 'red' ? 'var(--error-text)' : 'var(--warning-text)'};">${v.metrics.status}</span>
+          <span>Run health:</span>
+          <span style="font-weight: 600; color: ${providerErrors === 0 && measured === total ? 'var(--success-text)' : 'var(--error-text)'};">${providerErrors === 0 && measured === total ? 'VALID' : 'CHECK RUN'}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+          <span>Provider errors:</span>
+          <strong style="font-family: var(--font-mono);">${providerErrors}</strong>
         </div>
       </div>
     `;
   }
 
   renderEvaluationCard() {
-    const ev = MOCK_DATA.evaluationSummary;
     if (!this.evalSummaryBox) return;
+    const run = this.getRuntimeRun(this.currentVersion);
+    const summary = run ? run.summary : null;
+    const total = summary?.total_cases ?? 0;
+    const passed = summary?.passed_cases ?? 0;
+    const measured = summary?.measured_cases ?? 0;
+    const providerErrors = summary?.provider_error_cases ?? 0;
+    const rate = total ? `${Math.round((passed / total) * 1000) / 10}%` : "--";
 
     this.evalSummaryBox.innerHTML = `
       <div class="meta-header-row" style="margin-bottom: 4px;">
         <span class="meta-title">Kết quả Đánh giá Benchmark</span>
-        <span class="eval-badge">✓ Valid Run</span>
+        <span class="eval-badge">${run && providerErrors === 0 && measured === total ? '✓ Valid Run' : 'Demo Run'}</span>
       </div>
       <div class="eval-metric-row">
-        <span>Bộ cơ bản (Base Suite)</span>
-        <strong style="font-family: var(--font-mono); color: var(--success-text);">30 / 30 (100%)</strong>
+        <span>${run ? `${run.suite} suite · ${run.version}` : 'Current version'}</span>
+        <strong style="font-family: var(--font-mono); color: var(--success-text);">${passed} / ${total} (${rate})</strong>
       </div>
       <div class="eval-metric-row">
-        <span>Bộ nhóm (Team Extension)</span>
-        <strong style="font-family: var(--font-mono); color: var(--success-text);">10 / 10 (100%)</strong>
+        <span>Tool routing accuracy</span>
+        <strong style="font-family: var(--font-mono);">${summary ? `${Math.round(summary.tool_routing_accuracy * 1000) / 10}%` : '--'}</strong>
       </div>
       <div class="eval-metric-row">
-        <span>Bộ an toàn (Adversarial Safety)</span>
-        <strong style="font-family: var(--font-mono); color: var(--success-text);">12 / 12 (100%)</strong>
+        <span>Argument accuracy</span>
+        <strong style="font-family: var(--font-mono);">${summary ? `${Math.round(summary.argument_accuracy * 1000) / 10}%` : '--'}</strong>
       </div>
       <div class="eval-metric-row">
         <span>Lỗi kết nối Provider</span>
-        <strong style="font-family: var(--font-mono); color: var(--text-primary);">0 lỗi</strong>
+        <strong style="font-family: var(--font-mono); color: ${providerErrors ? 'var(--error-text)' : 'var(--success-text)'};">${providerErrors} lỗi</strong>
       </div>
       <div style="margin-top: 6px; font-size: 10px; color: var(--text-muted); text-align: right;">
-        Tiêu chuẩn: provider_errors == 0 & measured == total
+        ${run ? `Measured ${measured}/${total} · ${run.generated_at}` : 'Đang chờ run JSON'}
       </div>
     `;
   }
@@ -253,7 +313,7 @@ class AgentDashboardApp {
   // Load and Render Scenario
   loadScenario(scenarioId) {
     this.currentScenarioId = scenarioId;
-    const scenario = MOCK_DATA.scenarios.find(s => s.id === scenarioId);
+    const scenario = DEMO_DATA.scenarios.find(s => s.id === scenarioId);
     if (!scenario) return;
 
     // Update left sidebar active status
@@ -548,7 +608,7 @@ class AgentDashboardApp {
 
   // Interactive Confirmation Handler
   handleConfirmation(isConfirmed) {
-    const scenario = MOCK_DATA.scenarios.find(s => s.id === "confirmation-ticket");
+    const scenario = DEMO_DATA.scenarios.find(s => s.id === "confirmation-ticket");
     if (!scenario) return;
 
     const confMsg = scenario.conversation.find(m => m.confirmationCard);
@@ -663,7 +723,7 @@ class AgentDashboardApp {
       timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     };
 
-    const currentScenario = MOCK_DATA.scenarios.find(s => s.id === this.currentScenarioId);
+    const currentScenario = DEMO_DATA.scenarios.find(s => s.id === this.currentScenarioId);
     if (currentScenario) {
       currentScenario.conversation.push(userMsg);
       this.renderConversation(currentScenario.conversation);
@@ -742,7 +802,7 @@ class AgentDashboardApp {
     const scId = this.autoplayScenarios[this.autoplayIndex];
     this.loadScenario(scId);
 
-    const sc = MOCK_DATA.scenarios.find(s => s.id === scId);
+    const sc = DEMO_DATA.scenarios.find(s => s.id === scId);
     if (this.autoplayStatus && sc) {
       this.autoplayStatus.textContent = `Đang trình chiếu (${this.autoplayIndex + 1}/${this.autoplayScenarios.length}): ${sc.title}`;
     }
@@ -764,14 +824,27 @@ class AgentDashboardApp {
 
   // Transcript Modal
   openTranscriptModal() {
-    const sc = MOCK_DATA.scenarios.find(s => s.id === this.currentScenarioId);
+    const sc = DEMO_DATA.scenarios.find(s => s.id === this.currentScenarioId);
     if (!sc) return;
+    const run = this.getRuntimeRun(this.currentVersion);
+    const matchedResult = run?.results?.find(result =>
+      result.input === sc.conversation.find(message => message.role === "user")?.content
+    );
 
     const transcriptData = {
       conversation_id: "conv-" + this.currentScenarioId + "-trace-8429",
       scenario: sc.title,
       category: sc.category,
       artifact_version: this.currentVersion,
+      evidence: run ? {
+        run_id: run.run_id,
+        suite: run.suite,
+        provider: run.provider,
+        model: run.model,
+        generated_at: run.generated_at,
+        summary: run.summary,
+        matched_case: matchedResult || null
+      } : { source: "demo mock data" },
       generated_at: new Date().toISOString(),
       turns: sc.conversation.map(m => ({
         role: m.role,
