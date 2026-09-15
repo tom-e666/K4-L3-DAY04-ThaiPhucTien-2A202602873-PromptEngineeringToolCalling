@@ -37,20 +37,20 @@ tools:
       required: [service]
 
   - name: inspect_device
-    description: "Kiểm tra thông tin và chẩn đoán kĩ thuật thiết bị dựa trên Mã tài sản (Asset ID dạng LT-XXXX)."
+    description: "Kiểm tra thông tin và chẩn đoán kĩ thuật thiết bị dựa trên Mã tài sản cụ thể (Asset ID dạng LT-XXXX như LT-204). Không dùng chuỗi đại diện LT-XXXX hoặc mã EMP-XXXX."
     parameters:
       type: object
       properties:
-        asset_id: {type: string, description: "Mã tài sản"}
+        asset_id: {type: string, description: "Mã tài sản cụ thể của thiết bị"}
         check: {type: string, enum: [all, network, vpn, security, hardware, software], default: "all", description: "Nhóm kiểm tra"}
       required: [asset_id]
 
   - name: lookup_user
-    description: "Tra cứu thông tin nhân viên trong danh bạ theo Mã nhân viên (Employee ID dạng EMP-XXXX). Không dùng mã này cho inspect_device."
+    description: "Tra cứu thông tin nhân viên và danh sách thiết bị được cấp theo Mã nhân viên cụ thể (dạng EMP-1003). Bắt buộc phải có mã số cụ thể từ người dùng, không truyền chuỗi đại diện EMP-XXXX hay tên phòng ban."
     parameters:
       type: object
       properties:
-        employee_id: {type: string, description: "Mã nhân viên"}
+        employee_id: {type: string, description: "Mã nhân viên cụ thể (ví dụ EMP-1003)"}
       required: [employee_id]
 
   - name: format_incident_report
