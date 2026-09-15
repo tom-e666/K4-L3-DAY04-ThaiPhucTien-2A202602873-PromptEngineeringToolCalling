@@ -1,7 +1,290 @@
 {
   "dataset_id": "day04_v3_helpdesk_group",
   "dataset_role": "group",
-  "description": "Template intentionally left empty. The team must write exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
-  "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "description": "Custom evaluation suite containing 10 original IT helpdesk cases: 5 single-turn cases and 5 multi-turn cases.",
+  "allowed_failure_types": [
+    "wrong_tool",
+    "wrong_arg_value",
+    "wrong_boundary",
+    "unnecessary_tool",
+    "out_of_scope",
+    "missing_info"
+  ],
+  "cases": [
+    {
+      "id": "G01_single_device_check",
+      "phase": "B",
+      "suite": "group",
+      "query": "Kiểm tra kết nối mạng trên máy LT-550 giúp tôi.",
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "inspect_device",
+            "args": {
+              "asset_id": "LT-550",
+              "check": "network"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "device_network_check",
+        "difficulty": "easy",
+        "what_it_tests": "Trích xuất chính xác asset_id LT-550 và check=network."
+      }
+    },
+    {
+      "id": "G02_single_search_kb",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tìm hướng dẫn khắc phục sự cố máy in không nhận lệnh in.",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "search_kb",
+            "args": {
+              "query": "khắc phục sự cố máy in không nhận lệnh in",
+              "category": "printing"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "route_printing_kb",
+        "difficulty": "easy",
+        "what_it_tests": "Định tuyến đúng sang search_kb với danh mục category=printing."
+      }
+    },
+    {
+      "id": "G03_single_lookup_user",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tra cứu thông tin danh bạ của nhân viên có mã EMP-2045.",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup_user",
+            "args": {
+              "employee_id": "EMP-2045"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "user_directory_lookup",
+        "difficulty": "easy",
+        "what_it_tests": "Trích xuất employee_id và gọi tool lookup_user."
+      }
+    },
+    {
+      "id": "G04_single_missing_info",
+      "phase": "B",
+      "suite": "group",
+      "query": "Kiểm tra trạng thái hệ thống SSO ở môi trường thử nghiệm.",
+      "failure_type": "missing_info",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Môi trường thử nghiệm bạn đề cập là production hay staging?",
+              "response_type": "choice",
+              "options": [
+                "production",
+                "staging"
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "clarify_ambiguous_environment",
+        "difficulty": "medium",
+        "what_it_tests": "Môi trường thử nghiệm mơ hồ, Agent phải dùng tool clarify hỏi lại với 2 lựa chọn production/staging."
+      }
+    },
+    {
+      "id": "G05_single_out_of_scope",
+      "phase": "B",
+      "suite": "group",
+      "query": "Đặt cho tôi một bàn ăn 4 người tại nhà hàng hải sản tối nay.",
+      "failure_type": "out_of_scope",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "metadata": {
+        "skill": "refuse_out_of_scope",
+        "difficulty": "easy",
+        "what_it_tests": "Yêu cầu ngoài phạm vi IT Helpdesk, Agent từ chối lịch sự và không gọi bất kỳ tool nào."
+      }
+    },
+    {
+      "id": "G06_multiturn_correct_asset",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Kiểm tra sự cố phần cứng máy LT-101."
+        },
+        {
+          "role": "user",
+          "content": "À tôi gõ nhầm, mã máy đúng là DT-205."
+        }
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "inspect_device",
+            "args": {
+              "asset_id": "DT-205",
+              "check": "hardware"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_asset_correction",
+        "difficulty": "medium",
+        "what_it_tests": "Agent cập nhật thông tin đính chính mã máy mới (DT-205) thay vì mã cũ."
+      }
+    },
+    {
+      "id": "G07_multiturn_switch_intent",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Kiểm tra trạng thái kết nối VPN production."
+        },
+        {
+          "role": "user",
+          "content": "Thôi không xem trạng thái nữa, tìm bài hướng dẫn kết nối VPN cho macOS."
+        }
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "search_kb",
+            "args": {
+              "query": "hướng dẫn kết nối VPN macOS",
+              "category": "vpn"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_switch_tool",
+        "difficulty": "medium",
+        "what_it_tests": "Lượt 2 đổi ý định từ xem status sang tìm tài liệu KB."
+      }
+    },
+    {
+      "id": "G08_multiturn_ticket_confirmation",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tạo ticket hỗ trợ lỗi màn hình xanh máy DT-109."
+        },
+        {
+          "role": "user",
+          "content": "Đổi mức ưu tiên ticket thành critical."
+        },
+        {
+          "role": "user",
+          "content": "Cho tôi xem lại thông tin ticket và hỏi xác nhận trước khi tạo."
+        }
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn có xác nhận tạo ticket lỗi màn hình xanh máy DT-109 với mức ưu tiên critical không?",
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_action_boundary",
+        "difficulty": "hard",
+        "what_it_tests": "Dừng lại ở ranh giới xác nhận (clarify yes_no), không gọi create_ticket khi chưa có confirmed=true."
+      }
+    },
+    {
+      "id": "G09_multiturn_cancel_ticket",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tạo ticket yêu cầu cấp phát chuột mới cho nhân viên EMP-1050."
+        },
+        {
+          "role": "user",
+          "content": "Thôi hủy yêu cầu đi, tôi vừa tìm thấy chuột dự phòng rồi."
+        }
+      ],
+      "failure_type": "unnecessary_tool",
+      "expect": {
+        "no_tool": true,
+        "behavior": "answer_without_tool"
+      },
+      "metadata": {
+        "skill": "multiturn_cancellation",
+        "difficulty": "medium",
+        "what_it_tests": "Lượt 2 hủy lệnh, Agent phải tôn trọng lệnh hủy và trả lời trực tiếp mà không gọi tool."
+      }
+    },
+    {
+      "id": "G10_multiturn_parallel_tools",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tôi đang dùng máy LT-402 bị lỗi Wi-Fi."
+        },
+        {
+          "role": "user",
+          "content": "Hãy kiểm tra mạng trên máy này và kiểm tra luôn dịch vụ Wi-Fi production xem có sập không."
+        }
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "inspect_device",
+            "args": {
+              "asset_id": "LT-402",
+              "check": "network"
+            }
+          },
+          {
+            "name": "check_service_status",
+            "args": {
+              "service": "wifi",
+              "environment": "production"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_parallel_execution",
+        "difficulty": "hard",
+        "what_it_tests": "Gọi đồng thời 2 tool (inspect_device và check_service_status) dựa trên thông tin kết hợp từ 2 lượt chat."
+      }
+    }
+  ]
 }
