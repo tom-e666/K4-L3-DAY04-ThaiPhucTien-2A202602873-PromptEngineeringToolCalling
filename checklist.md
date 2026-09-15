@@ -3,7 +3,7 @@
  Nếu đổi lĩnh vực: Tạo bộ eval riêng (30 case cơ bản: 20 single-turn + 10 multi-turn; 12 case adversarial), chốt trước khi chạy v0.
  Viết case mở rộng cho nhóm: Hoàn thiện file data/eval_group.json với đúng 10 cases (5 single-turn + 5 multi-turn).
 3. Chạy Thực Nghiệm & Tối Ưu (v0 → v3)
- Chạy Baseline (v0): py run_eval.py --provider openrouter --version v0 --suite base --eval-cases data/eval_base.json (chưa sửa code/prompt).
+ Chạy Baseline (v0): py run_eval.py --provider openrouter --version v0 --suite base --eval-cases data/eval_group.json 
  Phân tích lỗi v0: Đánh giá routing, args, missing info, multi-turn, safety.
  Tối ưu v1, v2, v3:
 Đặt giả thuyết → Cải thiện artifacts/system_prompt.md hoặc artifacts/tools.yaml.

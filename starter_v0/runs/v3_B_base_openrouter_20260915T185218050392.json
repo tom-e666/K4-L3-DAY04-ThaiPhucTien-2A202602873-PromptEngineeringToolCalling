@@ -1,0 +1,452 @@
+{
+  "run_id": "v3_B_base_openrouter_20260915T185218050392",
+  "version": "v3",
+  "artifact_version": "v3+p17a2c92cdd07+tec53ee21f386",
+  "prompt_hash": "17a2c92cdd079c6c83da0ff39caf09b65ababbc19ee1f2472696201960d6135d",
+  "tools_hash": "ec53ee21f38697a6f8657b38f0d93222fef25fb3b54f40616a51950d9987021a",
+  "phase": "B",
+  "suite": "base",
+  "provider": "openrouter",
+  "model": "openai/gpt-4o-mini",
+  "system_prompt": "C:\\AI\\vinai20k\\K4-L3B-Day04-Prompt-Engineering-Tool-Calling-Labs\\starter_v0\\artifacts\\system_prompt.md",
+  "tools": "C:\\AI\\vinai20k\\K4-L3B-Day04-Prompt-Engineering-Tool-Calling-Labs\\starter_v0\\artifacts\\tools.yaml",
+  "eval_cases": "data\\eval_group.json",
+  "dataset_id": "day04_v3_helpdesk_group",
+  "dataset_role": "group",
+  "description": "Custom evaluation suite containing 10 original IT helpdesk cases: 5 single-turn cases and 5 multi-turn cases.",
+  "generated_at": "2026-09-15T18:52:18",
+  "summary": {
+    "total_cases": 10,
+    "measured_cases": 0,
+    "provider_error_cases": 10,
+    "passed_cases": 0,
+    "case_accuracy": 0.0,
+    "failure_counts": {},
+    "observed_mismatch_counts": {}
+  },
+  "results": [
+    {
+      "id": "G01_single_device_check",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "device_network_check",
+        "difficulty": "easy",
+        "what_it_tests": "Trích xuất chính xác asset_id LT-550 và check=network."
+      },
+      "input": "Kiểm tra kết nối mạng trên máy LT-550 giúp tôi.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "inspect_device",
+            "args": {
+              "asset_id": "LT-550",
+              "check": "network"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G02_single_search_kb",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "route_printing_kb",
+        "difficulty": "easy",
+        "what_it_tests": "Định tuyến đúng sang search_kb với danh mục category=printing."
+      },
+      "input": "Tìm hướng dẫn khắc phục sự cố máy in không nhận lệnh in.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "search_kb",
+            "args": {
+              "query": "khắc phục sự cố máy in không nhận lệnh in",
+              "category": "printing"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G03_single_lookup_user",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "user_directory_lookup",
+        "difficulty": "easy",
+        "what_it_tests": "Trích xuất employee_id và gọi tool lookup_user."
+      },
+      "input": "Tra cứu thông tin danh bạ của nhân viên có mã EMP-2045.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup_user",
+            "args": {
+              "employee_id": "EMP-2045"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G04_single_missing_info",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "clarify_ambiguous_environment",
+        "difficulty": "medium",
+        "what_it_tests": "Môi trường thử nghiệm mơ hồ, Agent phải dùng tool clarify hỏi lại với 2 lựa chọn production/staging."
+      },
+      "input": "Kiểm tra trạng thái hệ thống SSO ở môi trường thử nghiệm.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "choice",
+              "options": [
+                "production",
+                "staging"
+              ]
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "missing_info",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G05_single_out_of_scope",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "refuse_out_of_scope",
+        "difficulty": "easy",
+        "what_it_tests": "Yêu cầu ngoài phạm vi IT Helpdesk, Agent từ chối lịch sự và không gọi bất kỳ tool nào."
+      },
+      "input": "Đặt cho tôi một bàn ăn 4 người tại nhà hàng hải sản tối nay.",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "out_of_scope",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G06_multiturn_correct_asset",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_asset_correction",
+        "difficulty": "medium",
+        "what_it_tests": "Agent cập nhật thông tin đính chính mã máy mới (DT-205) thay vì mã cũ."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Kiểm tra sự cố phần cứng máy LT-101."
+        },
+        {
+          "role": "user",
+          "content": "À tôi gõ nhầm, mã máy đúng là DT-205."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "inspect_device",
+            "args": {
+              "asset_id": "DT-205",
+              "check": "hardware"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G07_multiturn_switch_intent",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_switch_tool",
+        "difficulty": "medium",
+        "what_it_tests": "Lượt 2 đổi ý định từ xem status sang tìm tài liệu KB."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Kiểm tra trạng thái kết nối VPN production."
+        },
+        {
+          "role": "user",
+          "content": "Thôi không xem trạng thái nữa, tìm bài hướng dẫn kết nối VPN cho macOS."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "search_kb",
+            "args": {
+              "query": "hướng dẫn kết nối VPN cho macOS",
+              "category": "vpn"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G08_multiturn_ticket_confirmation",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_action_boundary",
+        "difficulty": "hard",
+        "what_it_tests": "Dừng lại ở ranh giới xác nhận (clarify yes_no), không gọi create_ticket khi chưa có confirmed=true."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tạo ticket hỗ trợ lỗi màn hình xanh máy DT-109."
+        },
+        {
+          "role": "user",
+          "content": "Đổi mức ưu tiên ticket thành critical."
+        },
+        {
+          "role": "user",
+          "content": "Cho tôi xem lại thông tin ticket và hỏi xác nhận trước khi tạo."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G09_multiturn_cancel_ticket",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_cancellation",
+        "difficulty": "medium",
+        "what_it_tests": "Lượt 2 hủy lệnh, Agent phải tôn trọng lệnh hủy và trả lời trực tiếp mà không gọi tool."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tạo ticket yêu cầu cấp phát chuột mới cho nhân viên EMP-1050."
+        },
+        {
+          "role": "user",
+          "content": "Thôi hủy yêu cầu đi, tôi vừa tìm thấy chuột dự phòng rồi."
+        }
+      ],
+      "expect": {
+        "no_tool": true,
+        "behavior": "answer_without_tool"
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "unnecessary_tool",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G10_multiturn_parallel_tools",
+      "phase": "B",
+      "suite": "base",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_parallel_execution",
+        "difficulty": "hard",
+        "what_it_tests": "Gọi đồng thời 2 tool (inspect_device và check_service_status) dựa trên thông tin kết hợp từ 2 lượt chat."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tôi đang dùng máy LT-402 bị lỗi Wi-Fi."
+        },
+        {
+          "role": "user",
+          "content": "Hãy kiểm tra mạng trên máy này và kiểm tra luôn dịch vụ Wi-Fi production xem có sập không."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "inspect_device",
+            "args": {
+              "asset_id": "LT-402",
+              "check": "network"
+            }
+          },
+          {
+            "name": "check_service_status",
+            "args": {
+              "service": "wifi",
+              "environment": "production"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "failure_type": "provider_error",
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": "provider_error",
+        "failures": [
+          "RuntimeError: Install live provider dependency first: pip install openai"
+        ],
+        "actual_tool_calls": [],
+        "actual_text": null,
+        "routing_correct": false,
+        "args_correct": false
+      },
+      "tool_results": []
+    }
+  ]
+}

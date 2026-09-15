@@ -77,8 +77,8 @@ python run_eval.py --provider openrouter --version v0 --suite base --eval-cases 
 
 
 ```cmd
-python scripts/preflight_provider.py --provider openrouter
-python run_eval.py --provider openrouter --version v0 --suite base --eval-cases data/eval_base.json
+py scripts/preflight_provider.py --provider openrouter
+py run_eval.py --provider openrouter --version v0 --suite base --eval-cases data/eval_base.json
 ```
 
 Thay `openrouter` bằng `openai`, `anthropic` hoặc `gemini` khi dùng provider khác. Không commit `.env`.
