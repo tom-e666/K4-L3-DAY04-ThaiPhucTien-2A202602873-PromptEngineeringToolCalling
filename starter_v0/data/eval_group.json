@@ -283,6 +283,53 @@
         "difficulty": "hard",
         "what_it_tests": "Gọi đồng thời 2 tool (inspect_device và check_service_status) dựa trên thông tin kết hợp từ 2 lượt chat."
       }
+    },
+    {
+      "id": "G11_bonus_extend_vpn_access",
+      "phase": "B",
+      "suite": "group",
+      "query": "Gia hạn quyền truy cập VPN 7 ngày cho nhân viên EMP-1002 lý do đi công tác xa nhà.",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "extend_vpn_access",
+            "args": {
+              "employee_id": "EMP-1002",
+              "duration_days": 7,
+              "reason": "đi công tác xa nhà"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "bonus_tool_extend_vpn",
+        "difficulty": "easy",
+        "what_it_tests": "Trích xuất employee_id, duration_days và reason để gọi tool extend_vpn_access."
+      }
+    },
+    {
+      "id": "G12_bonus_extend_vpn_default_days",
+      "phase": "B",
+      "suite": "group",
+      "query": "Gia hạn VPN khẩn cấp cho nhân viên EMP-3040 vì làm việc từ xa.",
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "extend_vpn_access",
+            "args": {
+              "employee_id": "EMP-3040",
+              "reason": "làm việc từ xa"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "bonus_tool_extend_vpn_default",
+        "difficulty": "medium",
+        "what_it_tests": "Trích xuất employee_id và reason cho extend_vpn_access khi người dùng không chỉ định số ngày."
+      }
     }
   ]
 }

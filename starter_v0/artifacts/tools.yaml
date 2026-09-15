@@ -105,3 +105,15 @@ tools:
         asset_id: {type: string, default: "", description: "Mã tài sản nếu có"}
         confirmed: {type: boolean, default: false, description: "Đã được người dùng xác nhận"}
       required: [summary]
+
+  # ---------------- Team Bonus tool ----------------
+  - name: extend_vpn_access
+    description: "Gửi yêu cầu gia hạn hoặc cấp quyền truy cập VPN từ xa cho tài khoản nhân viên."
+    parameters:
+      type: object
+      properties:
+        employee_id: {type: string, description: "Mã nhân viên (dạng EMP-XXXX)"}
+        duration_days: {type: integer, default: 7, description: "Số ngày gia hạn (1, 3, 7, 30)"}
+        reason: {type: string, description: "Lý do cần gia hạn VPN"}
+      required: [employee_id, reason]
+
